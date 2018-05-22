@@ -1,25 +1,80 @@
 version: "3.4"
+
 services:
+  db-auth:
+    image: postgres:10.1
+    volumes:
+      - auth_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=keycloak
+      - POSTGRES_USER=keycloak
+      - POSTGRES_PASSWORD=foobar
+    networks:
+      - jimmy-auth-net
+    expose:
+      - '5432'
+  auth:
+    image: jboss/keycloak:4.0.0.Beta2
+    environment:
+      - DB_VENDOR=POSTGRES
+      - DB_ADDR=db-auth
+      - DB_PASSWORD=foobar
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=foobar
+    depends_on:
+       - db-auth
+    networks:
+      - jimmy-auth-net
+      - jimmy-net
+    ports:
+      - '8082:8080'
+
+  db:
+    image: postgres:10.1
+    volumes:
+      - jimmy_db_data:/var/lib/postgresql/data
+    env_file:
+      - .docker-env
+    networks:
+      - jimmy-db-net
+    expose:
+      - '5432'
   back:
     image: ${USER}/jimmy-back
+    volumes:
+      - jimmy_data:/mnt/jimmy
+    env_file:
+      - .docker-env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
+      - POSTRES_HOST=postgres
+      - JIMMY_STORAGE=/mnt/jimmy
+    depends_on:
+      - db
+      - auth
     networks:
-      - jimmy
+      - jimmy-db-net
+      - jimmy-net
     expose:
       - '8080'
-
   front:
     image: ${USER}/jimmy-front
-    links:
-      - back
     environment:
       - BACKEND_PORT=8080
       - BACKEND_HOST=back
+    depends_on:
+      - back
+      - auth
     networks:
-      - jimmy
+      - jimmy-net
     ports:
       - "80:4000"
 
 networks:
-  jimmy:
+  jimmy-db-net:
+  jimmy-net:
+  jimmy-auth-net:
+volumes:
+  auth_data:
+  jimmy_db_data:
+  jimmy_data:
