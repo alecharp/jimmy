@@ -19,6 +19,8 @@ services:
       - DB_VENDOR=POSTGRES
       - DB_ADDR=db-auth
       - DB_PASSWORD=foobar
+    env_file:
+      - .docker-env
     depends_on:
        - db-auth
     networks:
