@@ -37,7 +37,7 @@ services:
     expose:
       - '5432'
   back:
-    image: ${USER}/jimmy-back
+    image: ${USER}/jimmy-back:${VERSION}
     env_file:
       - .db-env
       - .keycloak-client-env
@@ -54,7 +54,7 @@ services:
       - '8080'
 
   front:
-    image: ${USER}/jimmy-front:develop
+    image: ${USER}/jimmy-front:${VERSION}
     env_file:
       - .keycloak-client-env
     environment:
