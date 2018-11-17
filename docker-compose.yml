@@ -2,7 +2,7 @@ version: "3.4"
 
 services:
   db-auth:
-    image: postgres:10.5
+    image: postgres:10-alpine
     volumes:
       - auth_data:/var/lib/postgresql/data
     env_file:
@@ -27,7 +27,7 @@ services:
       - '8082:8080'
 
   db:
-    image: postgres:10.5
+    image: postgres:10-alpine
     volumes:
       - jimmy_db_data:/var/lib/postgresql/data
     env_file:
@@ -38,14 +38,12 @@ services:
       - '5432'
   back:
     image: ${USER}/jimmy-back
-    volumes:
-      - jimmy_data:/mnt/jimmy
     env_file:
       - .db-env
+      - .keycloak-client-env
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - POSTRES_HOST=postgres
-      - JIMMY_STORAGE=/mnt/jimmy
+      - SPRING_PROFILES_ACTIVE=production
+      - KEYCLOAK_CLIENT_ID=jimmy-back
     depends_on:
       - db
       - auth
@@ -54,11 +52,15 @@ services:
       - jimmy-net
     expose:
       - '8080'
+
   front:
-    image: ${USER}/jimmy-front
+    image: ${USER}/jimmy-front:develop
+    env_file:
+      - .keycloak-client-env
     environment:
-      - BACKEND_PORT=8080
-      - BACKEND_HOST=back
+      - KEYCLOAK_CLIENT_ID=jimmy-front
+      - BACKEND_URL=http://back:8080
+      - PORT=4000
     depends_on:
       - back
       - auth
@@ -75,4 +77,3 @@ networks:
 volumes:
   auth_data:
   jimmy_db_data:
-  jimmy_data:
