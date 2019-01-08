@@ -20,6 +20,7 @@ The code is split between the front (what you can see) and the back (what you ca
 
  - https://github.com/alecharp/jimmy-back
  - https://github.com/alecharp/jimmy-front
+ - https://github.com/alecharp/jimmy-mobile
 
 We only use Open-Source project for Jimmy, as transparency is important for Jimmy.
 Transparency on what we do and use, so that you can see your pictures are and stay private.
