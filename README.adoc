@@ -1,20 +1,20 @@
-# Jimmy
+= Jimmy
 
 The jimmy application purpose is to easily share pictures of events to family, friends and other attendees.
 
 In the era of hyper social-media, sometimes, we don't want to share our pictures on services on which we don't control how the pictures will be handled over the time.
 With Jimmy, the pictures won't be "shared" nor sold to any company. They are yours, you do what you want with them.
 
-## Our policies
+== Our policies
 
  1. You own your pictures.
 If you delete the event, you delete all pictures shared in it.
 We don't take backup of them.
- 2. The code of Jimmy is Open-Source, developed with [Apache 2.0 license][apache_v2].
+ 2. The code of Jimmy is Open-Source, developed with https://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license].
 You can check it, propose fixes to it or open issues for problem you encounter.
  3. Your privacy is important to us, no one else than you (and the users you selected) can see your pictures.
 
-## The code
+== The code
 
 The code is split between the front (what you can see) and the back (what you cannot). You can check the code for both:
 
@@ -23,5 +23,3 @@ The code is split between the front (what you can see) and the back (what you ca
 
 We only use Open-Source project for Jimmy, as transparency is important for Jimmy.
 Transparency on what we do and use, so that you can see your pictures are and stay private.
-
-[apache_v2]: https://www.apache.org/licenses/LICENSE-2.0
