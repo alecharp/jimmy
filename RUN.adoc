@@ -1,0 +1,47 @@
+= Jimmy, how to run
+
+To run the project, you need to:
+
+1. checkout this repository
+2. create 4 environment files (listed below)
+3. run a `VERSION=latest docker-compose up -d` command
+
+== Environment files
+
+Each service might require an environment file.
+This to provide configuration to the service.
+
+=== `.auth-db-env`
+
+This file is required to configure the Database used for the authentication service.
+It needs to contain:
+
+* `POSTGRES_DB` for the database name to store the authentication details
+* `POSTGRES_USER` for the username to connect to the database
+* `POSTGRES_PASSWORD` for the password used to connect to the database
+
+=== `.auth-env`
+
+This file is required to configure the authentication service.
+It needs to contain:
+
+* `DB_DATABASE` for the database name to store the authentication details, same value as `POSTGRES_DB` in `.auth-db-env`
+* `DB_USER` for the username to connect to the database, same value as `POSTGRES_DB` in `.auth-db-env`
+* `DB_PASSWORD` for the password used to connect to the database, same value as `POSTGRES_DB` in `.auth-db-env`
+
+=== `.db-env`
+
+This file is required to configure the database used for the backend service.
+It needs to contain:
+
+* `POSTGRES_DB` for the database name to store Jimmy datas
+* `POSTGRES_USER` for the username to connect to the database
+* `POSTGRES_PASSWORD` for the password used to connect to the database
+
+=== `.keycloak-client-env`
+
+This file is required to configure the connection details to Keycloak, the authentication service.
+The values are specific to the realm name you have created in Keycloak.
+
+* `KEYCLOAK_REALM` for the realm configured in Keycloak
+** recommended value is `jimmy`
