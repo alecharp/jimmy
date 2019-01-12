@@ -1,6 +1,17 @@
 version: "3.6"
 
 services:
+  traefik:
+    image: traefik:1.7.7-alpine
+    command: --api --docker
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - jimmy-net
+
   auth-db:
     image: postgres:10-alpine
     volumes:
@@ -13,6 +24,10 @@ services:
       - '5432'
   auth:
     image: jboss/keycloak:4.8.2.Final
+    labels:
+      - 'traefik.frontend.rule=Host:auth.jimmy.local'
+      - 'traefik.docker.network=jimmy-net'
+      - 'traefik.docker.port=8080'
     environment:
       - DB_VENDOR=POSTGRES
       - DB_ADDR=auth-db
@@ -24,8 +39,8 @@ services:
     networks:
       - jimmy-auth-net
       - jimmy-net
-    ports:
-      - '8082:8080'
+    expose:
+      - '8080'
 
   back-db:
     image: postgres:10-alpine
@@ -39,12 +54,17 @@ services:
       - '5432'
   back:
     image: alecharp/jimmy-back:latest
+    labels:
+      - 'traefik.frontend.rule=Host:api.jimmy.local'
+      - 'traefik.docker.network=jimmy-net'
+      - 'traefik.docker.port=8080'
     env_file:
       - .db-env
       - .keycloak-client-env
     environment:
       - POSTGRES_HOST=back-db
       - SPRING_PROFILES_ACTIVE=production
+      - KEYCLOAK_URL=http://auth.jimmy.local/auth/
       - KEYCLOAK_CLIENT_ID=jimmy-back
     depends_on:
       - back-db
@@ -57,19 +77,24 @@ services:
 
   front:
     image: alecharp/jimmy-front:latest
+    labels:
+      - 'traefik.frontend.rule=Host:jimmy.local'
+      - 'traefik.docker.network=jimmy-net'
+      - 'traefik.docker.port=4000'
     env_file:
       - .keycloak-client-env
     environment:
+      - KEYCLOAK_URL=http://auth.jimmy.local:8080/auth/
       - KEYCLOAK_CLIENT_ID=jimmy-front
-      - BACKEND_URL=http://back:8080
+      - BACKEND_URL=http://api.jimmy.local/
       - PORT=4000
     depends_on:
       - back
       - auth
     networks:
       - jimmy-net
-    ports:
-      - "80:4000"
+    expose:
+      - '4000'
 
 networks:
   jimmy-auth-net:
