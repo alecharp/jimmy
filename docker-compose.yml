@@ -1,10 +1,10 @@
-version: "3.4"
+version: "3.6"
 
 services:
-  db-auth:
+  auth-db:
     image: postgres:10-alpine
     volumes:
-      - auth_data:/var/lib/postgresql/data
+      - auth_db_data:/var/lib/postgresql/data
     env_file:
     - .auth-db-env
     networks:
@@ -12,49 +12,51 @@ services:
     expose:
       - '5432'
   auth:
-    image: jboss/keycloak:4.4.0.Final
+    image: jboss/keycloak:4.8.2.Final
     environment:
       - DB_VENDOR=POSTGRES
-      - DB_ADDR=db-auth
+      - DB_ADDR=auth-db
+      - PROXY_ADDRESS_FORWARDING=true
     env_file:
       - .auth-env
     depends_on:
-       - db-auth
+       - auth-db
     networks:
       - jimmy-auth-net
       - jimmy-net
     ports:
       - '8082:8080'
 
-  db:
+  back-db:
     image: postgres:10-alpine
     volumes:
-      - jimmy_db_data:/var/lib/postgresql/data
+      - back_db_data:/var/lib/postgresql/data
     env_file:
       - .db-env
     networks:
-      - jimmy-db-net
+      - jimmy-back-net
     expose:
       - '5432'
   back:
-    image: ${USER}/jimmy-back:${VERSION}
+    image: alecharp/jimmy-back:latest
     env_file:
       - .db-env
       - .keycloak-client-env
     environment:
+      - POSTGRES_HOST=back-db
       - SPRING_PROFILES_ACTIVE=production
       - KEYCLOAK_CLIENT_ID=jimmy-back
     depends_on:
-      - db
+      - back-db
       - auth
     networks:
-      - jimmy-db-net
+      - jimmy-back-net
       - jimmy-net
     expose:
       - '8080'
 
   front:
-    image: ${USER}/jimmy-front:${VERSION}
+    image: alecharp/jimmy-front:latest
     env_file:
       - .keycloak-client-env
     environment:
@@ -70,10 +72,15 @@ services:
       - "80:4000"
 
 networks:
-  jimmy-db-net:
-  jimmy-net:
   jimmy-auth-net:
+    name: jimmy-auth-net
+    internal: true
+  jimmy-back-net:
+    name: jimmy-back-net
+    internal: true
+  jimmy-net:
+    name: jimmy-net
 
 volumes:
-  auth_data:
-  jimmy_db_data:
+  auth_db_data:
+  back_db_data:
